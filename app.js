@@ -1,10 +1,10 @@
 /* ============================================================
-   AI DJ — logika aplikacji (Hugging Face Inference API)
+   AI DJ — application logic (Hugging Face Inference API)
    - text-to-image: FLUX.1-schnell (provider hf-inference)
-   - tytuły/tracklisty: model wizyjny przez router.huggingface.co
+   - titles/tracklists: vision model via router.huggingface.co
    ============================================================ */
 
-/* ----------------- 6 fikcyjnych zespołów (zadanie 2 + 3) ----------------- */
+/* ----------------- 6 fictional acts (task 2 + 3) ----------------- */
 const ACTS = {
   lofi_bedroom_pop: {
     artist: "Pillow Static",
@@ -48,7 +48,7 @@ const ACTS = {
   },
   kids_rocknroll: {
     artist: "The Wiggly Amps",
-    genre: "Rock'n'roll for kids (gatunek wymyślony)",
+    genre: "Rock'n'roll for kids (fictional genre)",
     prompt:
       "cartoon animal band on a cardboard stage, dinosaur drummer and rabbit guitarist mid-jump, " +
       "bold playful children's book illustration, thick outlines, confetti in the air, " +
@@ -56,11 +56,11 @@ const ACTS = {
   },
 };
 
-/* FLUX nie obsługuje negative promptu — instrukcję „bez napisów”
-   doklejamy do promptu pozytywnego automatycznie. */
+/* FLUX does not support negative prompts — the "no text" instruction
+   is appended to the positive prompt automatically. */
 const NO_TEXT_SUFFIX = ", no text, no lettering, no typography, no watermark";
 
-/* ----------------- ustawienia ----------------- */
+/* ----------------- settings ----------------- */
 const SETTINGS_KEY = "aidj_settings";
 
 const els = {
@@ -98,13 +98,13 @@ function saveSettings() {
     imageBase: els.imageBase.value,
     visionModel: els.visionModel.value.trim(),
   }));
-  setStatus("Ustawienia zapisane lokalnie ✔");
+  setStatus("Settings saved locally ✔");
 }
 
 function getToken() {
   const t = els.token.value.trim();
   if (!t) {
-    setStatus("Najpierw wklej token Hugging Face w ⚙️ Ustawieniach API.", true);
+    setStatus("Paste your Hugging Face token in the ⚙️ API settings first.", true);
     document.getElementById("settings-panel").open = true;
     throw new Error("no token");
   }
@@ -116,7 +116,7 @@ function setStatus(msg, isError = false) {
   els.status.classList.toggle("error", isError);
 }
 
-/* ----------------- generator okładek (zadania 1, 3, 4, 5) ----------------- */
+/* ----------------- cover generator (tasks 1, 3, 4, 5) ----------------- */
 function fillActForm() {
   const key = els.actSelect.value;
   if (key === "custom") {
@@ -153,23 +153,23 @@ async function generateImage(prompt, seed) {
 
 async function handleGenerate(promptOverride = null) {
   let prompt = promptOverride ?? els.prompt.value.trim();
-  if (!prompt) { setStatus("Prompt jest pusty.", true); return; }
+  if (!prompt) { setStatus("The prompt is empty.", true); return; }
 
   const count = promptOverride ? 1 : parseInt(els.countSelect.value, 10);
   els.generateBtn.disabled = true;
   els.badPromptBtn.disabled = true;
-  els.results.innerHTML = ""; // brak „stackowania” — nowa generacja zastępuje starą
+  els.results.innerHTML = ""; // no stacking — a new generation replaces the old one
 
   try {
     for (let i = 0; i < count; i++) {
       const seed = Math.floor(Math.random() * 2 ** 31);
-      setStatus(`Generuję ${i + 1} / ${count} (seed ${seed})… pierwszy request może trwać 20–60 s.`);
+      setStatus(`Generating ${i + 1} / ${count} (seed ${seed})… first request may take 20–60 s.`);
       const img = await generateImage(prompt, seed);
       addResultCard(img, i + 1, count);
     }
     setStatus(count > 1
-      ? "Gotowe. Porównaj warianty: treść i styl są stałe (prompt), kompozycja się zmienia (seed)."
-      : "Gotowe.");
+      ? "Done. Compare the variants: content and style stay fixed (prompt), composition changes (seed)."
+      : "Done.");
   } catch (e) {
     if (e.message !== "no token") setStatus(e.message, true);
   } finally {
@@ -182,12 +182,12 @@ function addResultCard(img, idx, total) {
   const card = document.createElement("div");
   card.className = "result-card";
   card.innerHTML = `
-    <img src="${img.objectUrl}" alt="Wygenerowana okładka ${idx}/${total}">
+    <img src="${img.objectUrl}" alt="Generated cover ${idx}/${total}">
     <div class="row">
       <span>seed ${img.seed}</span>
       <span>
-        <a href="${img.objectUrl}" download="cover_seed${img.seed}.png" title="Pobierz">⬇️</a>
-        <button title="Dodaj do ulubionych" aria-label="Dodaj do ulubionych">⭐</button>
+        <a href="${img.objectUrl}" download="cover_seed${img.seed}.png" title="Download">⬇️</a>
+        <button title="Add to favourites" aria-label="Add to favourites">⭐</button>
       </span>
     </div>`;
   card.querySelector("button").addEventListener("click", () => addFavourite({
@@ -200,12 +200,12 @@ function addResultCard(img, idx, total) {
   els.results.appendChild(card);
 }
 
-/* ----------------- ulubione + tytuły/tracklisty (zadanie 6) ----------------- */
+/* ----------------- favourites + titles/tracklists (task 6) ----------------- */
 let favourites = [];
 
 function addFavourite(fav) {
   if (favourites.length >= 3) {
-    setStatus("Masz już 3 ulubione — usuń jedną, żeby dodać kolejną.", true);
+    setStatus("You already have 3 favourites — remove one to add another.", true);
     return;
   }
   favourites.push(fav);
@@ -228,18 +228,18 @@ function renderFavourites() {
     el.className = "sleeve";
     el.innerHTML = `
       <div class="cover-wrap">
-        <img src="${fav.dataUrl}" alt="${fav.album || "Ulubiona okładka"}">
+        <img src="${fav.dataUrl}" alt="${fav.album || "Favourite cover"}">
         <div class="vinyl"></div>
       </div>
       <div class="meta">
         <p class="genre">${fav.genre} · LP ${String(i + 1).padStart(2, "0")}</p>
-        <h3>${fav.album || "— bez tytułu —"}</h3>
+        <h3>${fav.album || "— untitled —"}</h3>
         <p class="artist">${fav.artist}</p>
         <ol class="tracks">${tracksHtml}</ol>
         <div class="btn-row">
           <button class="btn btn-gold ai-btn">✨ AI (kredyty HF)</button>
           <button class="btn btn-ghost rnd-btn">🎲 Losowo (za darmo)</button>
-          <button class="btn btn-ghost del-btn">🗑 Usuń</button>
+          <button class="btn btn-ghost del-btn">🗑 Remove</button>
         </div>
       </div>`;
     el.querySelector(".ai-btn").addEventListener("click", (ev) => aiTitle(fav, ev.target));
@@ -249,10 +249,10 @@ function renderFavourites() {
   });
 }
 
-/* ✨ model wizyjny naprawdę „patrzy” na okładkę (router HF, format OpenAI) */
+/* ✨ the vision model actually "looks" at the cover (HF router, OpenAI format) */
 async function aiTitle(fav, btn) {
   btn.disabled = true;
-  setStatus("Model wizyjny ogląda okładkę…");
+  setStatus("Vision model is reviewing the cover…");
   try {
     const res = await fetch("https://router.huggingface.co/v1/chat/completions", {
       method: "POST",
@@ -283,7 +283,7 @@ async function aiTitle(fav, btn) {
     fav.album = parsed.album;
     fav.tracks = parsed.tracks.slice(0, 5);
     renderFavourites();
-    setStatus("Tytuł i tracklista gotowe ✔");
+    setStatus("Title and tracklist ready ✔");
   } catch (e) {
     if (e.message !== "no token") setStatus(e.message, true);
   } finally {
@@ -291,7 +291,7 @@ async function aiTitle(fav, btn) {
   }
 }
 
-/* 🎲 lokalny generator — zero API, zero kredytów (nie patrzy na obraz) */
+/* 🎲 local generator — zero API, zero credits (does not inspect the image) */
 const RND = {
   adj: ["Velvet", "Broken", "Midnight", "Golden", "Silent", "Electric", "Faded", "Wild", "Hollow", "Neon"],
   noun: ["Requiem", "Horizon", "Static", "Mirrors", "Tide", "Echoes", "Parade", "Ashes", "Signal", "Garden"],
@@ -305,7 +305,7 @@ function randomTitle(fav) {
     `${pick(RND.adj)} ${pick(RND.track)}${i === 4 ? " (Reprise)" : ""}`);
 }
 
-/* ----------------- pomocnicze ----------------- */
+/* ----------------- helpers ----------------- */
 function blobToDataUrl(blob) {
   return new Promise((resolve, reject) => {
     const r = new FileReader();
@@ -317,13 +317,13 @@ function blobToDataUrl(blob) {
 
 async function friendlyApiError(res) {
   const text = await res.text();
-  if (res.status === 401) return "Błąd 401 — token jest nieprawidłowy lub wygasł.";
+  if (res.status === 401) return "Error 401 — token is invalid or expired.";
   if (text.includes("depleted"))
-    return "Wyczerpane miesięczne kredyty HF Inference — użyj przycisku 🎲 Losowo albo poczekaj do resetu.";
+    return "Monthly HF Inference credits depleted — use the 🎲 Random button or wait for reset.";
   if (text.includes("not supported"))
-    return "Model niedostępny u tego providera — zmień model lub endpoint w ⚙️ Ustawieniach.";
-  if (res.status === 503) return "Model się „budzi” na serwerach HF — spróbuj ponownie za chwilę.";
-  return `Błąd API (${res.status}): ${text.slice(0, 160)}`;
+    return "Model unavailable at this provider — change the model or endpoint in ⚙️ Settings.";
+  if (res.status === 503) return "The model is waking up on HF servers — try again in a moment.";
+  return `API error (${res.status}): ${text.slice(0, 160)}`;
 }
 
 /* ----------------- start ----------------- */
@@ -336,7 +336,7 @@ function init() {
   }
   const custom = document.createElement("option");
   custom.value = "custom";
-  custom.textContent = "Custom act… (własny prompt)";
+  custom.textContent = "Custom act… (your own prompt)";
   els.actSelect.appendChild(custom);
 
   els.actSelect.value = "dramatic_classical";
@@ -352,7 +352,7 @@ function init() {
       addFavourite({
         dataUrl: await blobToDataUrl(file),
         artist: "Unknown Artist",
-        genre: "wczytane z pliku",
+        genre: "loaded from file",
         album: null,
         tracks: null,
       });

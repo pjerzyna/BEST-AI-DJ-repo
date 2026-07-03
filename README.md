@@ -24,22 +24,22 @@ The browser app uses two HuggingFace endpoints, called directly from JavaScript 
    ```
 
    then open `http://localhost:8000`. (Or use the VS Code "Live Server" extension.)
-4. In **⚙️ Ustawienia API**, paste your token and click "Zapisz ustawienia".
+4. In **⚙️ API Settings**, paste your token and click "Save settings".
 
 ## Generating covers
 
-In **🎨 Generator okładek**, pick one of the 6 built-in acts from the dropdown (or "Custom act…" to write your own), edit the artist/genre/prompt if you want, choose how many variants to generate (1–4 — same prompt, different random seeds, which covers task 4 "run the prompt 4 times and compare"), and click "Generuj okładki". Every generation replaces the previous result instead of stacking. Covers are generated without any lettering (a "no text" instruction is appended automatically), and you can download each one with the ⬇️ button.
+In **🎨 Cover Generator**, pick one of the 6 built-in acts from the dropdown (or "Custom act…" to write your own), edit the artist/genre/prompt if you want, choose how many variants to generate (1–4 — same prompt, different random seeds, which covers task 4 "run the prompt 4 times and compare"), and click "Generate covers". Every generation replaces the previous result instead of stacking. Covers are generated without any lettering (a "no text" instruction is appended automatically), and you can download each one with the ⬇️ button.
 
 Every prompt of the 6 acts explicitly encodes **style, colors, mood and imagery** (task 3). The seed is shown under each result so you can document what stays the same (subject, style, palette — controlled by the prompt) versus what changes (composition, camera angle, detail — controlled by the seed).
 
-The **🙈 Fatalny prompt** button runs the deliberately terrible prompt `"music"` (task 5) so you can document what the model does with nothing to work with.
+The **🙈 Bad prompt** button runs the deliberately terrible prompt `"music"` (task 5) so you can document what the model does with nothing to work with.
 
 ## Favourites + auto title & tracklist
 
-In **⭐ Ulubione okładki**, add up to 3 covers — either with the ⭐ button directly on a generated result, or with "📂 Wczytaj obrazy" to load previously downloaded files. Favourites are displayed as vinyl sleeves (hover a cover to slide the record out). For each favourite you get two options:
+In **⭐ Favorite covers**, add up to 3 covers — either with the ⭐ button directly on a generated result, or with "📂 Load images" to load previously downloaded files. Favorites are displayed as vinyl sleeves (hover a cover to slide the record out). For each favorite you get two options:
 
-- **✨ AI (kredyty HF)** — the vision model actually looks at the image and returns a matching title + 5-song tracklist in one call. This spends a bit of your monthly included HuggingFace Inference credits (see below).
-- **🎲 Losowo (za darmo)** — a tiny local generator in `app.js` mixes words together to make up a title + tracklist instantly. No network call, no credits, unlimited use — but it never actually looks at the image, so results are generic.
+- **✨ AI (HF credits)** — the vision model actually looks at the image and returns a matching title + 5-song tracklist in one call. This spends a bit of your monthly included HuggingFace Inference credits (see below).
+- **🎲 Random (free)** — a tiny local generator in `app.js` mixes words together to make up a title + tracklist instantly. No network call, no credits, unlimited use — but it never actually looks at the image, so results are generic.
 
 ## Why two different endpoints
 
@@ -49,7 +49,7 @@ For the vision/title-generation step, the app therefore calls `https://router.hu
 
 ## Notes on how it works
 
-- **No stacking**: every "Generuj okładki" click clears the previous result and shows the new one(s).
+- **No stacking**: every "Generate covers" click clears the previous result and shows the new one(s).
 - **Real variation on repeat generations**: the image endpoint caches identical requests by default, so sending the same prompt twice used to return the exact same cached image. The app sends `options.use_cache: false` plus a random `seed` on every request, so each generation is genuinely new even with an unchanged prompt.
 - **Everything is editable**: the 6 default acts (lo-fi bedroom pop, dramatic classical, chaotic punk, mysterious ambient, cheesy 80s pop duo, and the made-up genre rock'n'roll for kids) are just a starting point.
 - **Token stays local**: it is stored in `localStorage` of your browser only and sent exclusively to `*.huggingface.co`.
