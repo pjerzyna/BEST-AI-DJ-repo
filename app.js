@@ -7,6 +7,7 @@
 /* ----------------- 6 fictional acts (task 2 + 3) ----------------- */
 const ACTS = {
   lofi_bedroom_pop: {
+    album: "Sunday Reruns",
     artist: "Pillow Static",
     genre: "Lo-fi bedroom pop",
     prompt:
@@ -15,6 +16,7 @@ const ACTS = {
       "nostalgic dreamy mood, lo-fi anime-inspired illustration, gentle window light",
   },
   dramatic_classical: {
+    album: "Ashes of the Overture",
     artist: "The Velvet Requiem",
     genre: "Dramatic classical",
     prompt:
@@ -23,6 +25,7 @@ const ACTS = {
       "deep crimson, obsidian black and fractured gold palette, tempestuous awe-inspiring mood",
   },
   chaotic_punk: {
+    album: "Refund Denied",
     artist: "Dumpster Ballet",
     genre: "Chaotic punk",
     prompt:
@@ -31,6 +34,7 @@ const ACTS = {
       "acid yellow, black and blood red palette, aggressive anarchic mood, high contrast grain",
   },
   mysterious_ambient: {
+    album: "Below the Thermocline",
     artist: "Halocline",
     genre: "Mysterious ambient",
     prompt:
@@ -39,6 +43,7 @@ const ACTS = {
       "eerie meditative mood, negative space, soft gradients, endless horizon",
   },
   cheesy_80s_pop_duo: {
+    album: "Call Me After Aerobics",
     artist: "Neon Cousins",
     genre: "Cheesy 80s pop duo",
     prompt:
@@ -47,6 +52,7 @@ const ACTS = {
       "hot pink, electric blue and chrome palette, glamorous over-the-top mood, soft glow, retro gloss",
   },
   kids_rocknroll: {
+    album: "Bedtime Is Cancelled!!",
     artist: "The Wiggly Amps",
     genre: "Rock'n'roll for kids (fictional genre)",
     prompt:
@@ -131,7 +137,7 @@ function fillActForm() {
   els.prompt.value = act.prompt;
 }
 
-async function generateImage(prompt, seed) {
+async function generateImage(prompt, seed, addNoTextSuffix = true) {
   const url = els.imageBase.value + els.imageModel.value.trim();
   const res = await fetch(url, {
     method: "POST",
@@ -140,9 +146,9 @@ async function generateImage(prompt, seed) {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      inputs: prompt + NO_TEXT_SUFFIX,
+      inputs: addNoTextSuffix ? prompt + NO_TEXT_SUFFIX : prompt,
       parameters: { seed },
-      /* bez use_cache:false HF zwraca ten sam obraz dla identycznego zapytania */
+      /* without use_cache:false HF returns the same cached image for an identical request */
       options: { use_cache: false, wait_for_model: true },
     }),
   });
@@ -155,7 +161,10 @@ async function handleGenerate(promptOverride = null) {
   let prompt = promptOverride ?? els.prompt.value.trim();
   if (!prompt) { setStatus("The prompt is empty.", true); return; }
 
-  const count = promptOverride ? 1 : parseInt(els.countSelect.value, 10);
+  /* Task 5: the deliberately terrible prompt is sent RAW — without the automatic
+     "no text" suffix — so the model truly gets nothing to work with. */
+  const isBadPrompt = promptOverride !== null;
+  const count = isBadPrompt ? 1 : parseInt(els.countSelect.value, 10);
   els.generateBtn.disabled = true;
   els.badPromptBtn.disabled = true;
   els.results.innerHTML = ""; // no stacking — a new generation replaces the old one
@@ -164,7 +173,7 @@ async function handleGenerate(promptOverride = null) {
     for (let i = 0; i < count; i++) {
       const seed = Math.floor(Math.random() * 2 ** 31);
       setStatus(`Generating ${i + 1} / ${count} (seed ${seed})… first request may take 20–60 s.`);
-      const img = await generateImage(prompt, seed);
+      const img = await generateImage(prompt, seed, !isBadPrompt);
       addResultCard(img, i + 1, count);
     }
     setStatus(count > 1
@@ -190,13 +199,21 @@ function addResultCard(img, idx, total) {
         <button title="Add to favourites" aria-label="Add to favourites">⭐</button>
       </span>
     </div>`;
-  card.querySelector("button").addEventListener("click", () => addFavourite({
-    dataUrl: img.dataUrl,
+  /* Snapshot the act info at generation time, so starring works correctly
+     even if the user switches to another act before clicking ⭐. */
+  const actKey = els.actSelect.value;
+  const snapshot = {
     artist: els.artist.value.trim() || "Unknown Artist",
     genre: els.genre.value.trim() || "—",
-    album: null,
-    tracks: null,
-  }));
+    album: actKey !== "custom" ? ACTS[actKey].album : null,
+  };
+  card.querySelector("button").addEventListener("click", () => {
+    const ok = addFavourite({ dataUrl: img.dataUrl, ...snapshot, tracks: null });
+    if (ok) {
+      setStatus(`Added to favourites: ${snapshot.artist} ✔`);
+      els.favourites.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+  });
   els.results.appendChild(card);
 }
 
@@ -206,10 +223,11 @@ let favourites = [];
 function addFavourite(fav) {
   if (favourites.length >= 3) {
     setStatus("You already have 3 favourites — remove one to add another.", true);
-    return;
+    return false;
   }
   favourites.push(fav);
   renderFavourites();
+  return true;
 }
 
 function removeFavourite(i) {
@@ -237,8 +255,8 @@ function renderFavourites() {
         <p class="artist">${fav.artist}</p>
         <ol class="tracks">${tracksHtml}</ol>
         <div class="btn-row">
-          <button class="btn btn-gold ai-btn">✨ AI (kredyty HF)</button>
-          <button class="btn btn-ghost rnd-btn">🎲 Losowo (za darmo)</button>
+          <button class="btn btn-gold ai-btn">✨ AI (HF credits)</button>
+          <button class="btn btn-ghost rnd-btn">🎲 Random (free)</button>
           <button class="btn btn-ghost del-btn">🗑 Remove</button>
         </div>
       </div>`;

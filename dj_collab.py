@@ -165,7 +165,7 @@ Conclusion: the prompt controls CONTENT and STYLE, the seed controls the specifi
 """)
 
 bad_img = generate_cover("bad_prompt", "music", negative_prompt)
-show(bad_img, 'Fatalny prompt: "music"')
+show(bad_img, 'Terrible prompt: "music"')
 
 print("""
 DOCUMENTATION (fill in after reviewing the result):
