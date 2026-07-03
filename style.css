@@ -1,0 +1,184 @@
+/* ============================================================
+   AI DJ — identyfikacja wizualna „wytwórni płytowej”
+   (spójna z gallery.html z wersji Colabowej projektu)
+   ============================================================ */
+:root {
+  --ink:   #17141f;
+  --panel: #1f1b29;
+  --line:  #2c2738;
+  --paper: #efe8da;
+  --gold:  #c9a45c;
+  --wine:  #7a2c3b;
+  --fog:   #9a94a8;
+}
+
+* { box-sizing: border-box; margin: 0; }
+
+body {
+  background: var(--ink);
+  color: var(--paper);
+  font-family: 'Space Grotesk', sans-serif;
+  padding: 56px 24px 80px;
+}
+
+header, main, footer { max-width: 1100px; margin: 0 auto; }
+
+/* ---------- nagłówek ---------- */
+header { margin-bottom: 44px; }
+
+header .label {
+  letter-spacing: .35em; text-transform: uppercase;
+  font-size: 11px; color: var(--gold); margin-bottom: 14px;
+}
+
+header h1 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(38px, 6vw, 64px);
+  font-weight: 600; line-height: 1.05;
+}
+header h1 em { font-style: italic; color: var(--gold); }
+
+header .sub { margin-top: 14px; color: var(--fog); max-width: 60ch; }
+
+/* ---------- panele ---------- */
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  margin-bottom: 28px;
+}
+
+.panel > h2, .panel > summary {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 24px; font-weight: 600;
+  padding: 18px 22px;
+  border-bottom: 1px solid var(--line);
+  cursor: default;
+}
+.panel > summary { cursor: pointer; list-style: none; }
+.panel > summary::-webkit-details-marker { display: none; }
+details[open] > summary { border-bottom: 1px solid var(--line); }
+
+.panel-body { padding: 22px; }
+
+.counter {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 12px; letter-spacing: .2em;
+  color: var(--gold); margin-left: 10px;
+}
+
+/* ---------- formularze ---------- */
+.grid-2 {
+  display: grid; gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  margin-bottom: 16px;
+}
+
+label { display: block; font-size: 12px; letter-spacing: .12em;
+        text-transform: uppercase; color: var(--fog); }
+
+input, select, textarea {
+  display: block; width: 100%; margin-top: 6px;
+  background: var(--ink); color: var(--paper);
+  border: 1px solid var(--line); padding: 10px 12px;
+  font-family: 'Space Grotesk', sans-serif; font-size: 14px;
+}
+textarea { resize: vertical; }
+input:focus, select:focus, textarea:focus, button:focus-visible {
+  outline: 2px solid var(--gold); outline-offset: 1px;
+}
+
+.btn {
+  display: inline-block; margin-top: 16px;
+  padding: 11px 22px; font-size: 13px;
+  letter-spacing: .15em; text-transform: uppercase;
+  border: 1px solid var(--gold); cursor: pointer;
+  font-family: 'Space Grotesk', sans-serif;
+  transition: background .2s, color .2s;
+}
+.btn-gold { background: var(--gold); color: var(--ink); font-weight: 700; }
+.btn-gold:hover { background: var(--paper); border-color: var(--paper); }
+.btn-ghost { background: transparent; color: var(--gold); }
+.btn-ghost:hover { background: var(--gold); color: var(--ink); }
+.btn[disabled] { opacity: .45; cursor: wait; }
+.btn-row { display: flex; gap: 12px; flex-wrap: wrap; }
+.file-btn { width: fit-content; }
+
+.hint { font-size: 13px; color: var(--fog); margin: 8px 0 14px;
+        text-transform: none; letter-spacing: 0; }
+
+.status { margin-top: 14px; font-size: 14px; color: var(--gold); min-height: 20px; }
+.status.error { color: #d96a6a; }
+
+/* ---------- wyniki generacji ---------- */
+.results {
+  display: grid; gap: 18px; margin-top: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+}
+
+.result-card { border: 1px solid var(--line); background: var(--ink); }
+.result-card img { width: 100%; aspect-ratio: 1; object-fit: cover; display: block; }
+.result-card .row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 8px 10px; font-size: 12px; color: var(--fog);
+}
+.result-card button, .result-card a {
+  background: none; border: none; color: var(--gold);
+  font-size: 16px; cursor: pointer; text-decoration: none;
+}
+.result-card button:hover, .result-card a:hover { color: var(--paper); }
+
+/* ---------- ulubione: koperty winylowe ---------- */
+.rack {
+  display: grid; gap: 40px; margin-top: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+.sleeve { background: var(--ink); border: 1px solid var(--line);
+          padding: 18px 18px 26px; }
+
+.cover-wrap { position: relative; aspect-ratio: 1; }
+.cover-wrap img {
+  position: relative; z-index: 2;
+  width: 100%; aspect-ratio: 1; object-fit: cover; display: block;
+  box-shadow: 0 12px 30px rgba(0,0,0,.55);
+}
+
+/* sygnatura projektu: winyl wysuwa się zza okładki */
+.vinyl {
+  position: absolute; top: 4%; left: 0; z-index: 1;
+  width: 92%; aspect-ratio: 1; border-radius: 50%;
+  background: radial-gradient(circle at center,
+    var(--gold) 0 12%, #0c0a10 13% 15%, #191521 16% 100%);
+  box-shadow: inset 0 0 0 1px #000;
+  transition: transform .5s cubic-bezier(.2,.7,.2,1);
+}
+.sleeve:hover .vinyl { transform: translateX(26%) rotate(40deg); }
+@media (prefers-reduced-motion: reduce) {
+  .vinyl { transition: none; }
+  .sleeve:hover .vinyl { transform: none; }
+}
+
+.meta { margin-top: 22px; }
+.meta .genre {
+  font-size: 10px; letter-spacing: .3em; text-transform: uppercase;
+  color: var(--gold); margin-bottom: 8px;
+}
+.meta h3 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 26px; font-weight: 600; line-height: 1.1;
+}
+.meta .artist { color: var(--fog); margin: 4px 0 14px; font-size: 14px; }
+
+.tracks { list-style: none; padding: 0; border-top: 1px solid var(--line); }
+.tracks li {
+  display: flex; gap: 14px; align-items: baseline;
+  padding: 7px 0; font-size: 13.5px;
+  border-bottom: 1px solid var(--line);
+}
+.tracks .no { color: var(--wine); font-size: 11px; letter-spacing: .1em; }
+
+.sleeve .btn-row { margin-top: 14px; }
+.sleeve .btn { margin-top: 0; padding: 8px 14px; font-size: 11px; }
+
+footer { margin-top: 50px; color: var(--fog); font-size: 12px;
+         border-top: 1px solid var(--line); padding-top: 18px; }

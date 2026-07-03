@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI DJ — Turn a Vibe into an Album Cover</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;1,500&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+  <p class="label">AI DJ · Hugging Face Inference API</p>
+  <h1>Turn a vibe<br><em>into an album cover.</em></h1>
+  <p class="sub">Sześć fikcyjnych zespołów, prompty z pełną kontrolą stylu, kolorów, nastroju
+     i obrazowania — generowane przez FLUX.1-schnell. Wybierz do trzech ulubionych okładek,
+     a model wizyjny wymyśli dla nich tytuł albumu i tracklistę.</p>
+</header>
+
+<main>
+
+  <!-- ⚙️ USTAWIENIA API -->
+  <details class="panel" id="settings-panel">
+    <summary>⚙️ Ustawienia API</summary>
+    <div class="panel-body grid-2">
+      <label>Token Hugging Face (Read)
+        <input type="password" id="hf-token" placeholder="hf_...">
+      </label>
+      <label>Model text-to-image
+        <input type="text" id="image-model" value="black-forest-labs/FLUX.1-schnell">
+      </label>
+      <label>Endpoint obrazów
+        <select id="image-base">
+          <option value="https://router.huggingface.co/hf-inference/models/">router.huggingface.co (zalecany)</option>
+          <option value="https://api-inference.huggingface.co/models/">api-inference.huggingface.co (klasyczny)</option>
+        </select>
+      </label>
+      <label>Model wizyjny (tytuły + tracklisty)
+        <input type="text" id="vision-model" value="meta-llama/Llama-4-Scout-17B-16E-Instruct">
+      </label>
+      <button id="save-settings" class="btn btn-gold">Zapisz ustawienia</button>
+      <p class="hint">Token jest zapisywany wyłącznie lokalnie (localStorage) w tej przeglądarce.</p>
+    </div>
+  </details>
+
+  <!-- 🎨 GENERATOR -->
+  <section class="panel">
+    <h2>🎨 Generator okładek</h2>
+    <div class="panel-body">
+      <div class="grid-2">
+        <label>Zespół
+          <select id="act-select"></select>
+        </label>
+        <label>Liczba wariantów (ten sam prompt, różne seedy)
+          <select id="count-select">
+            <option>1</option><option>2</option><option>3</option><option selected>4</option>
+          </select>
+        </label>
+        <label>Nazwa artysty
+          <input type="text" id="artist-input">
+        </label>
+        <label>Gatunek
+          <input type="text" id="genre-input">
+        </label>
+      </div>
+      <label>Prompt (styl · kolory · nastrój · obrazowanie)
+        <textarea id="prompt-input" rows="4"></textarea>
+      </label>
+      <div class="btn-row">
+        <button id="generate-btn" class="btn btn-gold">Generuj okładki</button>
+        <button id="bad-prompt-btn" class="btn btn-ghost" title="Punkt 5 zadania: prompt bez żadnych wskazówek">🙈 Fatalny prompt („music”)</button>
+      </div>
+      <p id="status" class="status" role="status"></p>
+      <div id="results" class="results"></div>
+    </div>
+  </section>
+
+  <!-- ⭐ ULUBIONE -->
+  <section class="panel">
+    <h2>⭐ Ulubione okładki <span class="counter" id="fav-counter">0 / 3</span></h2>
+    <div class="panel-body">
+      <p class="hint">Dodaj okładkę gwiazdką z wyników powyżej albo wczytaj pliki z dysku.
+         Dla każdej ulubionej wygeneruj tytuł i tracklistę — modelem wizyjnym (AI)
+         lub lokalnym generatorem losowym (za darmo, bez API).</p>
+      <label class="btn btn-ghost file-btn">📂 Wczytaj obrazy
+        <input type="file" id="file-input" accept="image/*" multiple hidden>
+      </label>
+      <div id="favourites" class="rack"></div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <p>AI DJ · zadanie: pipeline → 6 zespołów → prompty → warianty seedów → zły prompt → kuratorstwo.</p>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
