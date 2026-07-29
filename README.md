@@ -5,7 +5,7 @@ Two ways to run the same project:
 | Mode | Files | Needs | Best for |
 |---|---|---|---|
 | **🌐 Browser app** | `index.html` + `style.css` + `app.js` | a free HuggingFace token, nothing to install | interactive demo, curating favourites |
-| **🐍 Python / Colab** | `dj_collab.py` | a GPU (Colab T4 is enough) | full assignment run with SDXL, reproducible seeds |
+| **🐍 Colab** | `notes.txt` | a GPU (Colab T4 is enough) | full assignment run with SDXL, reproducible seeds |
 
 The browser app uses two HuggingFace endpoints, called directly from JavaScript (`fetch`):
 
